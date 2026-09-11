@@ -1,0 +1,31 @@
+{
+  "name": "skillforge-ai-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "echo \"Frontend tests will be added in later phases\""
+  },
+  "dependencies": {
+    "axios": "^1.8.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.5.0",
+    "recharts": "^2.15.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "oxlint": "^1.81.0",
+    "tailwindcss": "^4.1.3",
+    "typescript": "~5.8.3",
+    "vite": "^8.3.0"
+  }
+}

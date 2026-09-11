@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: skillforge-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: skillforge
+      # Set POSTGRES_PASSWORD in your shell/env when using Compose — do not commit real secrets.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: skillforge_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skillforge -d skillforge_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Optional future app containers (Phase 15). Local Phase 2 uses Windows PostgreSQL.
+
+volumes:
+  postgres_data:
