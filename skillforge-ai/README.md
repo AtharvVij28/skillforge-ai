@@ -6,9 +6,9 @@ AI-enabled Skill Intelligence and Personalized Learning Platform for India’s O
 
 ## Status
 
-**Phase 2 complete** — PostgreSQL database foundation (models, Alembic, readiness check).
+**Phase 3 complete** — authentication + RBAC (JWT, registration, login, role guards).
 
-Next: Phase 3 (authentication + RBAC) — start only when instructed.
+Next: Phase 4 (user profile + competency framework) — start only when instructed.
 
 ## Documentation
 

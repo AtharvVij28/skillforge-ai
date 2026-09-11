@@ -12,7 +12,7 @@ def test_root() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "ok"
-    assert payload["phase"] == "2"
+    assert payload["phase"] == "3"
     assert "database_url" not in payload
     assert "password" not in str(payload).lower()
 
@@ -22,7 +22,7 @@ def test_health() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "healthy"
-    assert payload["phase"] == 2
+    assert payload["phase"] == 3
     assert "database_url" not in payload
     assert "DATABASE_URL" not in payload
 

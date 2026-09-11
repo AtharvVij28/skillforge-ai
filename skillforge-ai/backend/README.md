@@ -2,14 +2,19 @@
 
 FastAPI service for SkillForge AI.
 
-## Phase 2 status
+## Phase 3 status
 
-PostgreSQL foundation is in place:
+Authentication and RBAC are in place:
 
-- SQLAlchemy 2.x models + relationships
-- Alembic migrations (`alembic/`)
-- `/api/health` (liveness) and `/api/ready` (DB connectivity)
-- Seed scaffold under `app/db/seed.py` and `../database/seed/`
+- Argon2 password hashing
+- JWT access tokens
+- `POST /api/auth/register` (LEARNER only)
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- Role guards: `LEARNER`, `ADMIN`
+- Development admin bootstrap via env (never via public registration)
+
+See [../docs/auth.md](../docs/auth.md) for details.
 
 ## Setup
 
@@ -20,22 +25,31 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Configure the repo-root `.env` (never commit real passwords):
+Configure repo-root `.env` (never commit real passwords):
 
 ```env
 DATABASE_URL=postgresql+psycopg://postgres:<YOUR_PASSWORD>@localhost:5432/skillforge_db
+JWT_SECRET_KEY=change-me-to-a-long-random-string
 ```
 
-Replace `<YOUR_PASSWORD>` locally. Do not paste the password into chat or docs.
+Optional development admin:
 
-Ensure the database `skillforge_db` exists in PostgreSQL 18.
+```env
+BOOTSTRAP_ADMIN_EMAIL=admin@example.com
+BOOTSTRAP_ADMIN_PASSWORD=change-me-dev-only
+APP_ENV=development
+```
 
 ## Migrate
 
-From `backend/`:
-
 ```bash
 alembic upgrade head
+```
+
+## Seed roles / bootstrap admin
+
+```bash
+python -m app.db.seed
 ```
 
 ## Run
@@ -46,18 +60,12 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 - Health: http://127.0.0.1:8000/api/health
 - Ready: http://127.0.0.1:8000/api/ready
-- OpenAPI: http://127.0.0.1:8000/docs
+- Docs: http://127.0.0.1:8000/docs
 
 ## Test
 
 ```bash
-pytest
+pytest -m "not integration"
 ```
 
-Live DB integration test:
-
-```bash
-pytest -m integration
-```
-
-Skip DB tests: `SKIP_DB_TESTS=1 pytest`
+Auth tests use in-memory SQLite — no real PostgreSQL password required.
