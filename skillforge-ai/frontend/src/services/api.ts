@@ -18,7 +18,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status
+    const url = String(error.config?.url || '')
+    const isCredentialAttempt = url.includes('/api/auth/login') || url.includes('/api/auth/register')
+    if (status === 401 && !isCredentialAttempt) {
       clearStoredToken()
     }
     return Promise.reject(error)

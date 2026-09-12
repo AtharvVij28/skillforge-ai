@@ -1,11 +1,14 @@
 import { type FormEvent, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/context/AuthContext'
+import { getApiErrorMessage } from '@/services/apiErrors'
 
 export function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as { from?: string } | null)?.from
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -16,10 +19,10 @@ export function LoginPage() {
     setSubmitting(true)
     setError(null)
     try {
-      await login({ email, password })
-      navigate('/account')
-    } catch {
-      setError('Login failed. Check your email and password.')
+      await login({ email: email.trim(), password })
+      navigate(from && from !== '/login' && from !== '/status' ? from : '/home', { replace: true })
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Login failed. Check your email and password.'))
     } finally {
       setSubmitting(false)
     }
@@ -28,7 +31,9 @@ export function LoginPage() {
   return (
     <section className="mx-auto max-w-md rounded-2xl border border-line bg-panel p-8 shadow-sm">
       <h1 className="font-display text-2xl font-semibold text-ink">Sign in</h1>
-      <p className="mt-2 text-sm text-ink-muted">Access your SkillForge AI account.</p>
+      <p className="mt-2 text-sm text-ink-muted">
+        Verifies credentials against PostgreSQL and issues a JWT. Demo competency screens stay mock data.
+      </p>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <label className="block space-y-1.5">

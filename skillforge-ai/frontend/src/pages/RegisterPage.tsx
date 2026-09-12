@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/context/AuthContext'
+import { getApiErrorMessage } from '@/services/apiErrors'
 
 export function RegisterPage() {
   const { register } = useAuth()
@@ -10,17 +11,20 @@ export function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setSubmitting(true)
     setError(null)
+    setSuccess(null)
     try {
-      await register({ email, password, full_name: fullName })
-      navigate('/account')
-    } catch {
-      setError('Registration failed. The email may already be in use.')
+      await register({ email: email.trim(), password, full_name: fullName.trim() })
+      setSuccess('Account created. Signing you in…')
+      navigate('/home')
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Registration failed. Please try again.'))
     } finally {
       setSubmitting(false)
     }
@@ -30,7 +34,7 @@ export function RegisterPage() {
     <section className="mx-auto max-w-md rounded-2xl border border-line bg-panel p-8 shadow-sm">
       <h1 className="font-display text-2xl font-semibold text-ink">Create account</h1>
       <p className="mt-2 text-sm text-ink-muted">
-        Public registration creates a <strong>LEARNER</strong> account.
+        Public registration creates a <strong>LEARNER</strong> account in PostgreSQL. You cannot register as ADMIN.
       </p>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -39,6 +43,7 @@ export function RegisterPage() {
           <input
             type="text"
             required
+            maxLength={255}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm outline-none focus:border-accent"
@@ -60,12 +65,14 @@ export function RegisterPage() {
             type="password"
             required
             minLength={8}
+            maxLength={128}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-md border border-line bg-white px-3 py-2 text-sm outline-none focus:border-accent"
           />
         </label>
         {error && <p className="text-sm text-warn">{error}</p>}
+        {success && <p className="text-sm text-success">{success}</p>}
         <button
           type="submit"
           disabled={submitting}

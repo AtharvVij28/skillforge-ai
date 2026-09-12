@@ -1,46 +1,96 @@
 import { Link } from 'react-router-dom'
 
+import { LearningLoop } from '@/components/demo/LearningLoop'
+import { useAuth } from '@/context/AuthContext'
+
 export function HomePage() {
+  const { isAuthenticated } = useAuth()
+
   return (
-    <section className="overflow-hidden rounded-2xl border border-line bg-panel shadow-sm">
-      <div className="grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-5 p-8 sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Phase 1 scaffold</p>
-          <h1 className="font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-            Personalized skill intelligence for India&apos;s Official Statistical System
-          </h1>
-          <p className="max-w-2xl text-base leading-relaxed text-ink-muted sm:text-lg">
-            Development environment is ready. Authentication, competency engines, assessments, and
-            dashboards will be added in later phases.
-          </p>
-          <div className="flex flex-wrap gap-3 pt-2">
-            <Link
-              to="/status"
-              className="rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-dark"
-            >
-              Check API status
-            </Link>
-            <a
-              href="http://127.0.0.1:8000/docs"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-md border border-line bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-accent/40"
-            >
-              Open API docs
-            </a>
+    <div className="space-y-10">
+      <section className="overflow-hidden rounded-2xl border border-line bg-panel shadow-sm">
+        <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="space-y-6 p-8 sm:p-12">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ai">SkillForge AI</p>
+            <h1 className="font-display text-4xl font-semibold leading-tight text-navy sm:text-5xl">
+              Turn skills into intelligence.
+            </h1>
+            <p className="max-w-xl text-base leading-relaxed text-ink-muted sm:text-lg">
+              AI-powered competency intelligence and personalized learning for a future-ready workforce in
+              India&apos;s Official Statistical System.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {isAuthenticated ? (
+                <Link
+                  to="/home"
+                  className="rounded-md bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-mid"
+                >
+                  Continue learning
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    className="rounded-md bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-mid"
+                  >
+                    Get started
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="rounded-md border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-ai/40"
+                  >
+                    Sign in
+                  </Link>
+                </>
+              )}
+              <Link
+                to="/demo"
+                className="rounded-md border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-ai/40"
+              >
+                Explore demo
+              </Link>
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">The learning loop</p>
+              <LearningLoop />
+            </div>
+          </div>
+          <div className="bg-[linear-gradient(155deg,#0b1f3a_0%,#16325c_48%,#312e81_100%)] p-8 text-white sm:p-10">
+            <p className="text-xs uppercase tracking-[0.18em] text-white/60">Why SkillForge</p>
+            <ul className="mt-8 space-y-6">
+              <li>
+                <p className="text-xs font-bold tracking-[0.16em] text-indigo-200">Discover</p>
+                <p className="mt-1 text-lg font-medium">Build a living competency profile.</p>
+              </li>
+              <li>
+                <p className="text-xs font-bold tracking-[0.16em] text-indigo-200">Assess</p>
+                <p className="mt-1 text-lg font-medium">Identify strengths and skill gaps.</p>
+              </li>
+              <li>
+                <p className="text-xs font-bold tracking-[0.16em] text-indigo-200">Grow</p>
+                <p className="mt-1 text-lg font-medium">Receive personalized learning pathways.</p>
+              </li>
+            </ul>
+            <p className="mt-10 text-xs leading-relaxed text-white/55">
+              Integration-ready for iGOT Karmayogi and NSSTA through API adapters. Demo resources are labelled and
+              are not live government APIs.
+            </p>
           </div>
         </div>
-        <div className="border-t border-line bg-[linear-gradient(145deg,#0f2744_0%,#14532d_55%,#0b6e4f_100%)] p-8 text-white lg:border-l lg:border-t-0">
-          <p className="text-sm uppercase tracking-[0.16em] text-white/70">Learning loop</p>
-          <ol className="mt-6 space-y-3 text-sm leading-relaxed text-white/90">
-            <li>1. Profile</li>
-            <li>2. Assess</li>
-            <li>3. Recommend</li>
-            <li>4. Learn</li>
-            <li>5. Assess again</li>
-          </ol>
-        </div>
-      </div>
-    </section>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        {[
+          ['Living profile', 'Designation, role, learning history and assessments stay in one competency record.'],
+          ['Explainable gaps', 'Every gap shows current vs required level, priority and a human-readable reason.'],
+          ['Closed loop', 'Recommendations adapt after each assessment — not a one-time course list.'],
+        ].map(([title, body]) => (
+          <article key={title} className="rounded-xl border border-line bg-panel p-5 shadow-sm">
+            <h2 className="font-semibold text-navy">{title}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-ink-muted">{body}</p>
+          </article>
+        ))}
+      </section>
+    </div>
   )
 }
