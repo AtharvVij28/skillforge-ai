@@ -216,6 +216,26 @@ export function getSubjectById(id: string): LearningSubject | undefined {
   return LEARNING_SUBJECTS.find((subject) => subject.id === id)
 }
 
+export const SUBJECT_TO_COMPETENCY_CODE: Record<string, string> = {
+  python: 'PYTHON',
+  statistics: 'STATISTICS',
+  'machine-learning': 'MACHINE_LEARNING',
+  'artificial-intelligence': 'ARTIFICIAL_INTELLIGENCE',
+  'data-science': 'DATA_SCIENCE',
+  'sql-databases': 'SQL_DATABASES',
+  'data-visualization': 'DATA_VISUALIZATION',
+  'computer-networks': 'COMPUTER_NETWORKS',
+  'operating-systems': 'OPERATING_SYSTEMS',
+  'web-development': 'WEB_DEVELOPMENT',
+  'cloud-computing': 'CLOUD_COMPUTING',
+  cybersecurity: 'CYBERSECURITY',
+  'algorithms-data-structures': 'ALGORITHMS',
+}
+
+export function competencyCodesForSubjects(subjectIds: string[]): string[] {
+  return [...new Set(subjectIds.map((id) => SUBJECT_TO_COMPETENCY_CODE[id]).filter(Boolean))]
+}
+
 export function getRecommendationForSubjects(subjectIds: string[]): {
   title: string
   reason: string

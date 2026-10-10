@@ -15,7 +15,7 @@ def health() -> dict[str, object]:
         "status": "healthy",
         "service": settings.app_name,
         "environment": settings.app_env,
-        "phase": 3,
+        "phase": 8,
         "ai_provider": settings.ai_provider,
         "course_provider_mode": settings.course_provider_mode,
     }

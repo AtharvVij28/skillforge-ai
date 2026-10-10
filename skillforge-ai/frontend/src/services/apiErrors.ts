@@ -38,6 +38,12 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
     if (status === 403) {
       return message || 'This account is inactive.'
     }
+    if (status === 400) {
+      return message || 'This confirmation link is invalid or has expired.'
+    }
+    if (status === 503) {
+      return message || 'Email delivery is not configured on the server.'
+    }
     if (status === 422) {
       return message || 'Please check the form and try again.'
     }

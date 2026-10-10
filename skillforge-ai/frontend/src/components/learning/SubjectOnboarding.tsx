@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { SubjectCard } from '@/components/learning/SubjectCard'
 import { LEARNING_SUBJECTS } from '@/data/learningCatalog'
@@ -13,6 +14,7 @@ type SubjectOnboardingProps = {
 type Phase = 'select' | 'ready'
 
 export function SubjectOnboarding({ userId, userFirstName, onComplete }: SubjectOnboardingProps) {
+  const navigate = useNavigate()
   const [selected, setSelected] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -28,9 +30,9 @@ export function SubjectOnboarding({ userId, userFirstName, onComplete }: Subject
 
   useEffect(() => {
     if (phase !== 'ready') return
-    const timer = window.setTimeout(() => onComplete(), 1600)
+    const timer = window.setTimeout(() => navigate('/assess?from=onboarding'), 1200)
     return () => window.clearTimeout(timer)
-  }, [phase, onComplete])
+  }, [phase, navigate])
 
   function toggleSubject(subjectId: string) {
     setSelected((current) =>
@@ -44,6 +46,7 @@ export function SubjectOnboarding({ userId, userFirstName, onComplete }: Subject
     setError(null)
     try {
       saveSubjectSelection(userId, selected)
+      onComplete()
       setPhase('ready')
     } catch {
       setError('Could not save your subject preferences. Please try again.')
@@ -56,16 +59,17 @@ export function SubjectOnboarding({ userId, userFirstName, onComplete }: Subject
     return (
       <div className="demo-fade mx-auto flex max-w-lg flex-col items-center rounded-2xl border border-line bg-panel px-8 py-16 text-center shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ai">All set</p>
-        <h1 className="mt-3 font-display text-3xl font-semibold text-navy">You&apos;re all set!</h1>
+        <h1 className="mt-3 font-display text-3xl font-semibold text-navy">Interests saved</h1>
         <p className="mt-3 text-ink-muted">
-          Great choices, {userFirstName}. We&apos;re preparing your personalized learning home…
+          Great choices, {userFirstName}. Next we&apos;ll assess those subjects so your dashboard shows real competency
+          gaps.
         </p>
         <button
           type="button"
-          onClick={onComplete}
+          onClick={() => navigate('/assess?from=onboarding')}
           className="mt-8 rounded-md bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-mid"
         >
-          Continue to Learning Home
+          Get started with assessment
         </button>
       </div>
     )

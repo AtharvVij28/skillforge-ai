@@ -21,18 +21,22 @@ from app.models.learning import (
     LearningResourceCompetency,
     Recommendation,
 )
-from app.models.user import Department, Role, User, UserProfile
+from app.models.skill_gap import SkillGapSnapshot
+from app.models.user import Department, EmailVerificationToken, PasswordResetToken, Role, User, UserProfile
 
 __all__ = [
     "Role",
     "Department",
     "User",
     "UserProfile",
+    "EmailVerificationToken",
+    "PasswordResetToken",
     "AuditLog",
     "CompetencyCategory",
     "Competency",
     "RoleCompetency",
     "UserCompetency",
+    "SkillGapSnapshot",
     "LearningResource",
     "LearningResourceCompetency",
     "LearningHistory",

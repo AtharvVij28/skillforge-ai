@@ -25,19 +25,66 @@ def _compile_uuid_sqlite(_type, _compiler, **_kw) -> str:
 from app.core.config import clear_settings_cache
 from app.core.database import get_db, reset_db_state
 from app.main import app
-from app.models.user import Department, Role, User, UserProfile
+from app.models.assessment import (
+    Assessment,
+    AssessmentAnswer,
+    AssessmentAttempt,
+    AssessmentQuestion,
+    Question,
+)
+from app.models.competency import Competency, CompetencyCategory, RoleCompetency, UserCompetency
+from app.models.document import Document, DocumentChunk
+from app.models.learning import LearningHistory, LearningResource, LearningResourceCompetency, Recommendation
+from app.models.skill_gap import SkillGapSnapshot
+from app.models.user import Department, EmailVerificationToken, PasswordResetToken, Role, User, UserProfile
 
 
 def _create_auth_tables(engine) -> None:
-    """Create only tables required for Phase 3 auth tests (avoids PostgreSQL JSONB on SQLite)."""
+    """Create tables required for Phase 3–4 tests (avoids full PostgreSQL-only schema on SQLite)."""
     Role.__table__.create(bind=engine, checkfirst=True)
     Department.__table__.create(bind=engine, checkfirst=True)
     User.__table__.create(bind=engine, checkfirst=True)
     UserProfile.__table__.create(bind=engine, checkfirst=True)
+    EmailVerificationToken.__table__.create(bind=engine, checkfirst=True)
+    PasswordResetToken.__table__.create(bind=engine, checkfirst=True)
+    CompetencyCategory.__table__.create(bind=engine, checkfirst=True)
+    Competency.__table__.create(bind=engine, checkfirst=True)
+    RoleCompetency.__table__.create(bind=engine, checkfirst=True)
+    UserCompetency.__table__.create(bind=engine, checkfirst=True)
+    SkillGapSnapshot.__table__.create(bind=engine, checkfirst=True)
+    Document.__table__.create(bind=engine, checkfirst=True)
+    DocumentChunk.__table__.create(bind=engine, checkfirst=True)
+    LearningResource.__table__.create(bind=engine, checkfirst=True)
+    Question.__table__.create(bind=engine, checkfirst=True)
+    Assessment.__table__.create(bind=engine, checkfirst=True)
+    AssessmentQuestion.__table__.create(bind=engine, checkfirst=True)
+    AssessmentAttempt.__table__.create(bind=engine, checkfirst=True)
+    AssessmentAnswer.__table__.create(bind=engine, checkfirst=True)
+    LearningResourceCompetency.__table__.create(bind=engine, checkfirst=True)
+    LearningHistory.__table__.create(bind=engine, checkfirst=True)
+    Recommendation.__table__.create(bind=engine, checkfirst=True)
 
 
 def _drop_auth_tables(engine) -> None:
+    Recommendation.__table__.drop(bind=engine, checkfirst=True)
+    LearningHistory.__table__.drop(bind=engine, checkfirst=True)
+    LearningResourceCompetency.__table__.drop(bind=engine, checkfirst=True)
+    AssessmentAnswer.__table__.drop(bind=engine, checkfirst=True)
+    AssessmentAttempt.__table__.drop(bind=engine, checkfirst=True)
+    AssessmentQuestion.__table__.drop(bind=engine, checkfirst=True)
+    Assessment.__table__.drop(bind=engine, checkfirst=True)
+    Question.__table__.drop(bind=engine, checkfirst=True)
+    LearningResource.__table__.drop(bind=engine, checkfirst=True)
+    DocumentChunk.__table__.drop(bind=engine, checkfirst=True)
+    Document.__table__.drop(bind=engine, checkfirst=True)
+    SkillGapSnapshot.__table__.drop(bind=engine, checkfirst=True)
+    UserCompetency.__table__.drop(bind=engine, checkfirst=True)
+    RoleCompetency.__table__.drop(bind=engine, checkfirst=True)
+    Competency.__table__.drop(bind=engine, checkfirst=True)
+    CompetencyCategory.__table__.drop(bind=engine, checkfirst=True)
     UserProfile.__table__.drop(bind=engine, checkfirst=True)
+    PasswordResetToken.__table__.drop(bind=engine, checkfirst=True)
+    EmailVerificationToken.__table__.drop(bind=engine, checkfirst=True)
     User.__table__.drop(bind=engine, checkfirst=True)
     Department.__table__.drop(bind=engine, checkfirst=True)
     Role.__table__.drop(bind=engine, checkfirst=True)
@@ -50,6 +97,7 @@ def test_settings(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("JWT_ALGORITHM", "HS256")
     monkeypatch.setenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
     monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("EMAIL_VERIFICATION_REQUIRED", "false")
     clear_settings_cache()
     reset_db_state()
     yield

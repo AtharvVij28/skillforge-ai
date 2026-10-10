@@ -9,6 +9,8 @@ from app.api.router import api_router
 from app.core.config import get_settings, settings
 from app.core.database import get_session_factory, reset_db_state
 from app.services.auth_service import bootstrap_admin_if_configured
+from app.services.catalog_seed import ensure_learning_catalog
+from app.services.framework_seed import ensure_competency_framework
 from app.services.role_service import ensure_default_roles
 
 
@@ -21,6 +23,8 @@ def _startup_seed() -> None:
         db = session_factory()
         try:
             ensure_default_roles(db)
+            ensure_competency_framework(db)
+            ensure_learning_catalog(db)
             if (
                 cfg.is_development
                 and cfg.bootstrap_admin_email
@@ -69,7 +73,7 @@ def create_app() -> FastAPI:
         return {
             "name": settings.app_name,
             "status": "ok",
-            "phase": "3",
+            "phase": "8",
             "docs": "/docs",
         }
 

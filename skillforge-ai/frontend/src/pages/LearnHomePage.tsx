@@ -1,15 +1,19 @@
-import { useCallback, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link, Navigate } from 'react-router-dom'
 
+import { GetStartedAssessment } from '@/components/learning/GetStartedAssessment'
 import { LearningDashboard } from '@/components/learning/LearningDashboard'
 import { SubjectOnboarding } from '@/components/learning/SubjectOnboarding'
 import { useAuth } from '@/context/AuthContext'
+import { fetchMyCompetencyScores } from '@/services/competencyScores'
 import { hasLearningOnboarding } from '@/services/subjectProgressService'
+import { isAdminRole } from '@/utils/roles'
 import { firstNameFromFullName } from '@/utils/userDisplay'
 
 export function LearnHomePage() {
   const { user, isAuthenticated } = useAuth()
   const [refreshKey, setRefreshKey] = useState(0)
+  const [hasAssessment, setHasAssessment] = useState<boolean | null>(null)
 
   const firstName = useMemo(
     () => firstNameFromFullName(user?.full_name ?? 'Learner'),
@@ -19,6 +23,27 @@ export function LearnHomePage() {
   const handleOnboardingComplete = useCallback(() => {
     setRefreshKey((value) => value + 1)
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    async function load() {
+      try {
+        const scores = await fetchMyCompetencyScores()
+        if (!cancelled) setHasAssessment(scores.has_assessment)
+      } catch {
+        if (!cancelled) setHasAssessment(false)
+      }
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [user, refreshKey])
+
+  if (user && isAdminRole(user.role.code, user.role.name)) {
+    return <Navigate to="/admin" replace />
+  }
 
   if (!isAuthenticated || !user) {
     return (
@@ -35,9 +60,6 @@ export function LearnHomePage() {
     )
   }
 
-  // refreshKey forces re-evaluation after subject selection is saved
-  void refreshKey
-
   if (!hasLearningOnboarding(user.id)) {
     return (
       <SubjectOnboarding
@@ -46,6 +68,14 @@ export function LearnHomePage() {
         onComplete={handleOnboardingComplete}
       />
     )
+  }
+
+  if (hasAssessment === null) {
+    return <p className="text-sm text-ink-muted">Loading your learning home…</p>
+  }
+
+  if (!hasAssessment) {
+    return <GetStartedAssessment userId={user.id} userFirstName={firstName} />
   }
 
   return <LearningDashboard userId={user.id} userFirstName={firstName} />

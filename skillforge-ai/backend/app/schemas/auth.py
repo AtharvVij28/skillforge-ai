@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, computed_field
 
 
 class RegisterRequest(BaseModel):
@@ -38,6 +38,29 @@ class UserResponse(BaseModel):
     role: RoleSummary
     is_active: bool
     last_login_at: datetime | None = None
+    email_verified_at: datetime | None = None
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def email_verified(self) -> bool:
+        return self.email_verified_at is not None
+
+
+class VerifyEmailRequest(BaseModel):
+    token: str = Field(min_length=8, max_length=512)
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=8, max_length=512)
+    password: str = Field(min_length=8, max_length=128)
 
 
 class MessageResponse(BaseModel):

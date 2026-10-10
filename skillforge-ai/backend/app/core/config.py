@@ -58,10 +58,39 @@ class Settings(BaseSettings):
     bootstrap_admin_email: str | None = Field(default=None, alias="BOOTSTRAP_ADMIN_EMAIL")
     bootstrap_admin_password: str | None = Field(default=None, alias="BOOTSTRAP_ADMIN_PASSWORD")
 
+    email_verification_required: bool = Field(default=True, alias="EMAIL_VERIFICATION_REQUIRED")
+    frontend_public_url: str = Field(
+        default="http://localhost:5173",
+        validation_alias=AliasChoices("FRONTEND_URL", "FRONTEND_PUBLIC_URL"),
+    )
+    smtp_host: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("RESEND_SMTP_HOST", "SMTP_HOST"),
+    )
+    smtp_port: int = Field(
+        default=587,
+        validation_alias=AliasChoices("RESEND_SMTP_PORT", "SMTP_PORT"),
+    )
+    smtp_username: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("RESEND_SMTP_USERNAME", "SMTP_USERNAME"),
+    )
+    smtp_password: str | None = Field(default=None, alias="SMTP_PASSWORD")
+    smtp_from: str | None = Field(default=None, alias="SMTP_FROM")
+    smtp_use_tls: bool = Field(default=True, alias="SMTP_USE_TLS")
+    resend_api_key: str | None = Field(default=None, alias="RESEND_API_KEY")
+    resend_from: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("RESEND_FROM_EMAIL", "RESEND_FROM"),
+    )
+
     upload_dir: str = Field(default="./storage/uploads", alias="UPLOAD_DIR")
     max_upload_mb: int = Field(default=10, alias="MAX_UPLOAD_MB")
 
     ai_provider: str = Field(default="mock", alias="AI_PROVIDER")
+    llm_api_key: str | None = Field(default=None, alias="LLM_API_KEY")
+    llm_model: str = Field(default="gpt-4o-mini", alias="LLM_MODEL")
+    llm_api_base: str = Field(default="https://api.openai.com/v1", alias="LLM_API_BASE")
     course_provider_mode: str = Field(default="mock", alias="COURSE_PROVIDER_MODE")
 
     @computed_field  # type: ignore[prop-decorator]
@@ -80,6 +109,18 @@ class Settings(BaseSettings):
     def has_database_credentials(self) -> bool:
         """True when DATABASE_URL does not still contain the password placeholder."""
         return not is_placeholder_database_url(self.database_url)
+
+    @property
+    def uses_live_llm(self) -> bool:
+        provider = (self.ai_provider or "mock").strip().lower()
+        key = (self.llm_api_key or "").strip()
+        return provider in {"openai", "open_ai"} and bool(key)
+
+    @property
+    def mail_delivery_configured(self) -> bool:
+        has_smtp = bool((self.smtp_host or "").strip() and (self.smtp_from or "").strip())
+        has_resend = bool((self.resend_api_key or "").strip())
+        return has_smtp or has_resend
 
 
 @lru_cache

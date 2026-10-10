@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/context/AuthContext'
 import { getApiErrorMessage } from '@/services/apiErrors'
+import { isAdminRole } from '@/utils/roles'
 
 export function LoginPage() {
   const { login } = useAuth()
@@ -19,8 +20,14 @@ export function LoginPage() {
     setSubmitting(true)
     setError(null)
     try {
-      await login({ email: email.trim(), password })
-      navigate(from && from !== '/login' && from !== '/status' ? from : '/home', { replace: true })
+      const user = await login({ email: email.trim(), password })
+      if (isAdminRole(user.role.code, user.role.name)) {
+        navigate('/admin', { replace: true })
+        return
+      }
+      navigate(from && from !== '/login' && from !== '/status' && !from.startsWith('/admin') ? from : '/home', {
+        replace: true,
+      })
     } catch (err) {
       setError(getApiErrorMessage(err, 'Login failed. Check your email and password.'))
     } finally {
@@ -32,7 +39,7 @@ export function LoginPage() {
     <section className="mx-auto max-w-md rounded-2xl border border-line bg-panel p-8 shadow-sm">
       <h1 className="font-display text-2xl font-semibold text-ink">Sign in</h1>
       <p className="mt-2 text-sm text-ink-muted">
-        Verifies credentials against PostgreSQL and issues a JWT. Demo competency screens stay mock data.
+        Sign in to your learner account after confirming your email.
       </p>
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -65,6 +72,12 @@ export function LoginPage() {
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+
+      <p className="mt-4 text-sm text-ink-muted">
+        <Link to="/forgot-password" className="font-medium text-accent hover:underline">
+          Forgot password?
+        </Link>
+      </p>
 
       <p className="mt-4 text-sm text-ink-muted">
         New here?{' '}

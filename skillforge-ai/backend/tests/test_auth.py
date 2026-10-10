@@ -27,6 +27,7 @@ def test_successful_registration(client: TestClient, learner_credentials: dict) 
     assert payload["full_name"] == learner_credentials["full_name"]
     assert payload["role"]["code"] == ROLE_LEARNER
     assert payload["is_active"] is True
+    assert payload["email_verified"] is True
     assert "hashed_password" not in payload
     assert "password" not in payload
 
@@ -180,3 +181,74 @@ def test_api_never_exposes_password_hash(
         body = response.text.lower()
         assert "hashed_password" not in body
         assert learner_credentials["password"] not in body
+
+
+def test_disposable_email_rejected(client: TestClient) -> None:
+    response = client.post(
+        "/api/auth/register",
+        json={
+            "email": "throwaway@mailinator.com",
+            "password": "LearnerPass123!",
+            "full_name": "Temp User",
+        },
+    )
+    assert response.status_code == 422
+    assert "disposable" in response.text.lower() or "temporary" in response.text.lower()
+
+
+def test_confirmation_required_before_login(
+    client: TestClient, monkeypatch, learner_credentials: dict
+) -> None:
+    from app.core.config import clear_settings_cache
+
+    monkeypatch.setenv("EMAIL_VERIFICATION_REQUIRED", "true")
+    monkeypatch.setenv("SMTP_HOST", "smtp.test.local")
+    monkeypatch.setenv("SMTP_FROM", "noreply@skillforge.test")
+    clear_settings_cache()
+    captured: dict[str, str] = {}
+    inbox: list[str] = []
+
+    def fake_send(
+        to_email: str,
+        subject: str,
+        html_content: str | None = None,
+        *,
+        text_body: str | None = None,
+        html_body: str | None = None,
+    ) -> None:
+        captured["to"] = to_email
+        body = text_body or html_content or html_body or ""
+        inbox.append(body)
+        captured["text"] = body
+
+    monkeypatch.setattr("app.services.email_service.send_email", fake_send)
+
+    registered = client.post("/api/auth/register", json=learner_credentials)
+    assert registered.status_code == 201
+    assert registered.json()["email_verified"] is False
+    assert captured["to"] == learner_credentials["email"]
+    combined = "\n".join(inbox)
+    assert "/verify-email?token=" in combined
+
+    blocked = client.post(
+        "/api/auth/login",
+        json={"email": learner_credentials["email"], "password": learner_credentials["password"]},
+    )
+    assert blocked.status_code == 403
+    assert "confirm" in blocked.json()["detail"].lower()
+
+    token = next(part.split("token=", 1)[1].split()[0] for part in inbox if "token=" in part)
+    confirmed = client.post("/api/auth/verify-email", json={"token": token})
+    assert confirmed.status_code == 200
+
+    allowed = client.post(
+        "/api/auth/login",
+        json={"email": learner_credentials["email"], "password": learner_credentials["password"]},
+    )
+    assert allowed.status_code == 200
+    assert allowed.json()["access_token"]
+
+
+def test_invalid_verification_token_rejected(client: TestClient) -> None:
+    response = client.post("/api/auth/verify-email", json={"token": "not-a-real-token-value"})
+    assert response.status_code == 400

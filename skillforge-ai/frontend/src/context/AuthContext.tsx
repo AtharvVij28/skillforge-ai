@@ -23,7 +23,7 @@ type AuthContextValue = {
   user: UserResponse | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (payload: LoginPayload) => Promise<void>
+  login: (payload: LoginPayload) => Promise<UserResponse>
   register: (payload: RegisterPayload) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
@@ -73,13 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loginUser(payload)
     const current = await fetchCurrentUser()
     setUser(current)
+    return current
   }, [])
 
   const register = useCallback(async (payload: RegisterPayload) => {
     await registerUser(payload)
-    await loginUser({ email: payload.email, password: payload.password })
-    const current = await fetchCurrentUser()
-    setUser(current)
   }, [])
 
   const logout = useCallback(async () => {

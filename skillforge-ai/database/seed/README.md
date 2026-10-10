@@ -1,20 +1,17 @@
-# Seed data (Phase 2 scaffold)
+# Seed data
 
-This folder holds **future** seed scripts and fixtures.
+Executable seed: `backend/app/db/seed.py`
+
+## What it seeds (Phase 4)
+
+1. RBAC roles: `LEARNER`, `ADMIN`
+2. Sample departments (`MOSPI`, `NSO`, `NSSTA`, `DATA_ANALYTICS`)
+3. Competency categories + competencies
+4. Job-role competency requirements (`STATISTICAL_OFFICER`, `DATA_ANALYST`)
 
 ## Rules
 
-- Seed data for MVP catalogs (roles, departments, competencies, mock iGOT/NSSTA courses) will be added in later phases.
-- Mark mock/sample learning resources with `is_mock=true` in the database.
+- Mark mock/sample learning resources with `is_mock=true` when those are added in later phases.
 - Do **not** treat mock course rows as live iGOT/NSSTA API responses.
 - Never put real database passwords in seed files.
-
-## Planned seed targets
-
-1. RBAC roles: `LEARNER`, `ADMIN`
-2. Departments (sample)
-3. Competency categories + competencies
-4. Role competency requirements (job-role based)
-5. Mock learning resources (`provider=IGOT|NSSTA`, `is_mock=true`)
-
-Executable seed entrypoint (stub): `backend/app/db/seed.py`
+- Framework seed is idempotent and also runs on API startup when the database is available.

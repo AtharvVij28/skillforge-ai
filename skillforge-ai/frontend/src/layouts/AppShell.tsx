@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/context/AuthContext'
+import { isAdminRole } from '@/utils/roles'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
@@ -11,10 +12,11 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 export function AppShell() {
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
+  const admin = isAdminRole(user?.role.code, user?.role.name)
 
   async function handleLogout() {
     await logout()
-    navigate('/login', { replace: true })
+    navigate(admin ? '/admin/login' : '/login', { replace: true })
   }
 
   return (
@@ -28,31 +30,36 @@ export function AppShell() {
             <p className="text-sm text-ink-muted">Skill intelligence for official statistics</p>
           </div>
           <nav className="flex flex-wrap items-center justify-end gap-2">
-            {isAuthenticated ? (
+            {isAuthenticated && admin ? (
+              <>
+                <NavLink to="/admin" className={navLinkClass}>
+                  Accounts
+                </NavLink>
+                <button
+                  type="button"
+                  onClick={() => void handleLogout()}
+                  className="rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink transition hover:border-accent/40"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : isAuthenticated ? (
               <>
                 <NavLink to="/home" className={navLinkClass}>
                   Home
                 </NavLink>
-                <NavLink to="/learning" className={navLinkClass}>
+                <NavLink to="/path" className={navLinkClass}>
                   My Learning
                 </NavLink>
-                <NavLink to="/competencies" className={navLinkClass}>
-                  Subjects
-                </NavLink>
-                <NavLink to="/assessments" className={navLinkClass}>
+                <NavLink to="/assess" className={navLinkClass}>
                   Assessments
                 </NavLink>
-                <NavLink to="/insights" className={navLinkClass}>
-                  AI Insights
+                <NavLink to="/gaps" className={navLinkClass}>
+                  Skill Gaps
                 </NavLink>
                 <NavLink to="/account" className={navLinkClass}>
                   Profile
                 </NavLink>
-                {(user?.role.code === 'ADMIN' || user?.role.name?.toUpperCase().includes('ADMIN')) && (
-                  <NavLink to="/admin" className={navLinkClass}>
-                    Admin
-                  </NavLink>
-                )}
                 <button
                   type="button"
                   onClick={() => void handleLogout()}
@@ -65,9 +72,6 @@ export function AppShell() {
               <>
                 <NavLink to="/" className={navLinkClass} end>
                   Home
-                </NavLink>
-                <NavLink to="/demo" className={navLinkClass}>
-                  Explore demo
                 </NavLink>
                 <NavLink to="/login" className={navLinkClass}>
                   Sign in

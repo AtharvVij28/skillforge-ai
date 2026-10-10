@@ -6,9 +6,11 @@ AI-enabled Skill Intelligence and Personalized Learning Platform for India’s O
 
 ## Status
 
-**Phase 3 complete** — authentication + RBAC (JWT, registration, login, role guards).
+**Phase 8 in progress** — assessments, competency updates, and learning paths with study material.
 
-Next: Phase 4 (user profile + competency framework) — start only when instructed.
+Loop: Profile → Skill gaps → Assessment → Score update → Learning path.
+
+Next: Phase 9 polish / Phase 12 assistant. Live MCQ writing needs `AI_PROVIDER=openai` and `LLM_API_KEY` in `.env`.
 
 ## Documentation
 

@@ -50,6 +50,7 @@ def test_model_metadata_registered() -> None:
         "competency_categories",
         "competencies",
         "role_competencies",
+        "skill_gap_snapshots",
         "user_competencies",
         "learning_resources",
         "learning_resource_competencies",

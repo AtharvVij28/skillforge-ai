@@ -43,12 +43,6 @@ export function HomePage() {
                   </Link>
                 </>
               )}
-              <Link
-                to="/demo"
-                className="rounded-md border border-line bg-white px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-ai/40"
-              >
-                Explore demo
-              </Link>
             </div>
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink-muted">The learning loop</p>
@@ -72,8 +66,7 @@ export function HomePage() {
               </li>
             </ul>
             <p className="mt-10 text-xs leading-relaxed text-white/55">
-              Integration-ready for iGOT Karmayogi and NSSTA through API adapters. Demo resources are labelled and
-              are not live government APIs.
+              Integration-ready for iGOT Karmayogi and NSSTA through API adapters.
             </p>
           </div>
         </div>

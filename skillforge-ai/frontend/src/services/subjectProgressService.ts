@@ -4,7 +4,7 @@
  * Swap this module later for backend learning APIs without rewriting UI.
  */
 
-import { createInitialProgress, type SubjectProgress } from '@/data/learningCatalog'
+import type { SubjectProgress } from '@/data/learningCatalog'
 
 export type LearnerLearningState = {
   subjectIds: string[]
@@ -60,7 +60,14 @@ export function saveSubjectSelection(userId: string, subjectIds: string[]): Lear
   const now = new Date().toISOString()
   const next: LearnerLearningState = {
     subjectIds: uniqueIds,
-    progress: createInitialProgress(uniqueIds),
+    progress: uniqueIds.map((subjectId) => ({
+      subjectId,
+      progressPercent: 0,
+      currentChapter: 1,
+      totalChapters: 8,
+      lastActivity: 'Assessment required',
+      courseTitle: 'Get started with assessment',
+    })),
     onboardedAt: existing?.onboardedAt ?? now,
     updatedAt: now,
   }

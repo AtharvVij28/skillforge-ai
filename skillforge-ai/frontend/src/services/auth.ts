@@ -36,6 +36,26 @@ export async function registerUser(payload: RegisterPayload): Promise<UserRespon
   return data
 }
 
+export async function verifyEmail(token: string): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>('/api/auth/verify-email', { token })
+  return data
+}
+
+export async function resendVerification(email: string): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>('/api/auth/resend-verification', { email })
+  return data
+}
+
+export async function requestPasswordReset(email: string): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>('/api/auth/forgot-password', { email })
+  return data
+}
+
+export async function resetPassword(token: string, password: string): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>('/api/auth/reset-password', { token, password })
+  return data
+}
+
 export async function loginUser(payload: LoginPayload): Promise<TokenResponse> {
   const { data } = await api.post<TokenResponse>('/api/auth/login', payload)
   setStoredToken(data.access_token)
